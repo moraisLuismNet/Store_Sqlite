@@ -34,6 +34,8 @@ public partial class StoreContext : DbContext
 
     public virtual DbSet<Action> Actions { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -67,6 +69,13 @@ public partial class StoreContext : DbContext
             entity.Property(e => e.ActionName).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07CF9C1A4E");
+
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(500);
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }

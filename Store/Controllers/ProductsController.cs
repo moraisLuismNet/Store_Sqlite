@@ -3,6 +3,7 @@ using Store.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Store.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Store.Controllers
 {
@@ -294,6 +295,7 @@ namespace Store.Controllers
             return Ok(productsDTO);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> PostProduct(ProductInsertDTO product)
         {
@@ -330,6 +332,7 @@ namespace Store.Controllers
             return Created("Product", new { product = newProduct });
         }
 
+        [Authorize]
         [HttpPut("{idProduct:int}")]
         public async Task<IActionResult> PutProduct(int idProduct, [FromBody] ProductUpdateDTO product)
         {
@@ -375,7 +378,7 @@ namespace Store.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
