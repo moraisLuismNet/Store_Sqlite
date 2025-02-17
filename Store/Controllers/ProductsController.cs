@@ -2,7 +2,7 @@
 using Store.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Store.DTOs;
+using Store.Services;
 
 namespace Store.Controllers
 {
@@ -11,15 +11,20 @@ namespace Store.Controllers
     public class ProductsController : Controller
     {
         private readonly StoreContext _context;
+        private readonly ActionsService _actionsService;
+        private readonly IFileManagerService _fileManagerService;
 
-        public ProductsController(StoreContext context)
+        public ProductsController(StoreContext context, ActionsService actionsService, IFileManagerService fileManagerService)
         {
             _context = context;
+            _actionsService = actionsService;
+            _fileManagerService = fileManagerService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<ProductDTO>>> GetProducts()
         {
+            await _actionsService.AddAction("Get products", "Products");
             var products = await _context.Products
                 .Include(p => p.Category)
                 .ToListAsync();
@@ -40,6 +45,7 @@ namespace Store.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ProductDTO>> GetProductById(int id)
         {
+            await _actionsService.AddAction("Get products by id", "Products");
             var product = await _context.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.IdProduct == id);
@@ -66,6 +72,7 @@ namespace Store.Controllers
         [HttpGet("orderNameProduct/{desc}")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsOrderName(bool desc)
         {
+            await _actionsService.AddAction("Get products by order (name)", "Products");
             List<ProductDTO> productsDTO = new List<ProductDTO>();
 
             List<Product> products;
@@ -101,6 +108,7 @@ namespace Store.Controllers
         [HttpGet("nameProduct/contains/{text}")]
         public async Task<ActionResult<List<ProductDTO>>> GetNameProduct(string text)
         {
+            await _actionsService.AddAction("Get products containing (name)", "Products");
             var products = await _context.Products
                 .Where(x => x.NameProduct.Contains(text))
                 .Include(p => p.Category)
@@ -123,6 +131,7 @@ namespace Store.Controllers
         [HttpGet("price/between")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByPrices([FromQuery] decimal min, [FromQuery] decimal max)
         {
+            await _actionsService.AddAction("Get products with a price between", "Products");
             var products = await _context.Products
                 .Where(x => x.Price > min && x.Price < max)
                 .Include(p => p.Category)
@@ -201,6 +210,7 @@ namespace Store.Controllers
         [HttpGet("productSale")]
         public async Task<ActionResult<IEnumerable<ProductSaleDTO>>> GetProductsAndPrices()
         {
+            await _actionsService.AddAction("Get producto and prices", "Products");
             var products = await _context.Products
                 .Include(x => x.Category)
                 .Select(x => new ProductSaleDTO
@@ -217,6 +227,7 @@ namespace Store.Controllers
         [HttpGet("productsGroupedByDiscontinued")]
         public async Task<ActionResult> GetProductsGroupedByDiscontinued()
         {
+            await _actionsService.AddAction("Get products discontinued", "Products");
             var products = await _context.Products
                 .Include(p => p.Category)
                 .GroupBy(g => g.Discontinued)
@@ -290,11 +301,28 @@ namespace Store.Controllers
             {
                 NameProduct = product.NameProduct,
                 Price = product.Price,
-                DateUp = product.DateUp,
-                Discontinued= product.Discontinued,
-                PhotoUrl = product.PhotoUrl,
+                DateUp = DateOnly.FromDateTime(DateTime.Now),
+                Discontinued = product.Discontinued,
+                PhotoUrl = "",
                 CategoryId = (int)product.CategoryId
             };
+
+            if (product.Photo != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    // We extract the image from the request
+                    await product.Photo.CopyToAsync(memoryStream);
+                    // We convert it to a byte array which is what the save method needs.
+                    var content = memoryStream.ToArray();
+                    // We need the extension to save the file
+                    var extension = Path.GetExtension(product.Photo.FileName);
+                    // We received the name of the file
+                    // The Transient File Manager service instantiates the service and when it is no longer used it is destroyed.
+                    newProduct.PhotoUrl = await _fileManagerService.SaveFile(content, extension, "img",
+                        product.Photo.ContentType);
+                }
+            }
 
             await _context.AddAsync(newProduct);
             await _context.SaveChangesAsync();
@@ -358,6 +386,7 @@ namespace Store.Controllers
                 return NotFound();
             }
 
+            await _fileManagerService.DeleteFile(product.PhotoUrl, "img");
             _context.Remove(product);
             await _context.SaveChangesAsync();
             return Ok();

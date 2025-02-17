@@ -32,6 +32,8 @@ public partial class StoreContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Action> Actions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -54,6 +56,17 @@ public partial class StoreContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Categories_Products");
         });
+
+        modelBuilder.Entity<Action>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Action__3214EC07BA4C2A33");
+
+            entity.Property(e => e.Controller).HasMaxLength(50);
+            entity.Property(e => e.ActionDate).HasColumnType("datetime");
+            entity.Property(e => e.Ip).HasMaxLength(50);
+            entity.Property(e => e.ActionName).HasMaxLength(50);
+        });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -2,6 +2,7 @@
 using Store.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Store.Services;
 
 namespace Store.Controllers
 {
@@ -10,15 +11,18 @@ namespace Store.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly StoreContext _context;
+        private readonly ActionsService _actionsService;
 
-        public CategoriesController(StoreContext context)
+        public CategoriesController(StoreContext context, ActionsService actionsService)
         {
             _context = context;
+            _actionsService = actionsService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<CategoryDTO>>> GetCategories()
         {
+            await _actionsService.AddAction("Get categories", "Categories");
             var categories = await _context.Categories
                 .Include(c => c.Products)
                 .ToListAsync();
@@ -44,6 +48,7 @@ namespace Store.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<CategoryItemDTO>> GetCategoryById(int id)
         {
+            await _actionsService.AddAction("Get categories by id", "Categories");
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.IdCategory == id);
 
@@ -61,6 +66,7 @@ namespace Store.Controllers
         [HttpGet("orderNameCategory/{desc}")]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesOrderName(bool desc)
         {
+            await _actionsService.AddAction("Get categories by order (name)", "Categories");
             List<Category> categories;
 
             if (desc)
@@ -84,6 +90,7 @@ namespace Store.Controllers
         [HttpGet("nameCategory/contains/{text}")]
         public async Task<ActionResult<List<CategoryDTO>>> GetNameCategory(string text)
         {
+            await _actionsService.AddAction("Get categories containing (name)", "Categories");
             var categories = await _context.Categories
                 .Where(x => x.NameCategory.Contains(text))
                 .Include(x => x.Products)
@@ -180,6 +187,7 @@ namespace Store.Controllers
         [HttpGet("categoriesProductsSelect/{id:int}")]
         public async Task<ActionResult<Category>> GetCategoriesProductsSelect(int id)
         {
+            await _actionsService.AddAction("Get categories and products", "Categories");
             var category = await (from x in _context.Categories
                                    select new CategoryProductDTO
                                    {

@@ -1,4 +1,6 @@
-﻿namespace Store.DTOs
+﻿using Store.Validators;
+
+namespace Store.DTOs
 {
     public class ProductInsertDTO
     {
@@ -6,7 +8,10 @@
         public decimal Price { get; set; }
         public DateOnly? DateUp { get; set; }
         public bool Discontinued { get; set; }
-        public string? PhotoUrl { get; set; }
+
+        [WeightFileValidation(MaximumWeightInMegaBytes: 4)]
+        [ValidationFileType(groupFileType: GroupFileType.Image)]
+        public IFormFile? Photo { get; set; }
         public int? CategoryId { get; set; }
     }
 }
