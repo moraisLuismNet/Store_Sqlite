@@ -2,7 +2,7 @@
 ASP.NET Core Web API Store
 
 ![Store](img/1.png)
-![Store](img/1.png)
+![Store](img/2.png)
 
 
 ## Program
