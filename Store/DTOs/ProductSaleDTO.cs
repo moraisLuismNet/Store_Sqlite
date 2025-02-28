@@ -2,9 +2,9 @@
 {
     public class ProductSaleDTO
     {
-        public string NameProduct { get; set; } = null!;
+        public string ProductName { get; set; } = null!;
         public int Amount { get; set; }
         public decimal? Price { get; set; }
-        public string NameCategory { get; set; } = null!;
+        public string CategoryName { get; set; } = null!;
     }
 }

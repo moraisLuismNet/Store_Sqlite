@@ -2,6 +2,6 @@
 {
     public class CategoryItemDTO
     {
-        public string NameCategory { get; set; }
+        public string CategoryName { get; set; } = null!;
     }
 }

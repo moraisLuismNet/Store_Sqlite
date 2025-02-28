@@ -21,29 +21,17 @@ namespace Store.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CategoryDTO>>> GetCategories()
+        public async Task<ActionResult> GetCategories()
         {
             await _actionsService.AddAction("Get categories", "Categories");
-            var categories = await _context.Categories
-                .Include(c => c.Products)
-                .ToListAsync();
-
-            var result = categories.Select(c => new CategoryDTO
-            {
-                IdCategory = c.IdCategory,
-                NameCategory = c.NameCategory,
-                Products = c.Products.Select(p => new ProductDTO
-                {
-                    IdProduct = p.IdProduct,
-                    NameProduct = p.NameProduct,
-                    Price = p.Price,
-                    DateUp = p.DateUp,
-                    Discontinued = p.Discontinued,
-                    PhotoUrl = p.PhotoUrl
-                }).ToList()
-            }).ToList();
-
-            return Ok(result);
+            var categories = await (from x in _context.Categories
+                                    select new CategoryDTO
+                                    {
+                                        IdCategory = x.IdCategory,
+                                        CategoryName = x.NameCategory,
+                                        TotalProducts = x.Products.Count()
+                                    }).ToListAsync();
+            return Ok(categories);
         }
 
         [HttpGet("{id:int}")]
@@ -58,7 +46,7 @@ namespace Store.Controllers
 
             var result = new CategoryItemDTO
             {
-                NameCategory = category.NameCategory
+                CategoryName = category.NameCategory
             };
 
             return Ok(result);
@@ -100,11 +88,11 @@ namespace Store.Controllers
             var categoriesDTO = categories.Select(c => new CategoryDTO
             {
                 IdCategory = c.IdCategory,
-                NameCategory = c.NameCategory,
+                CategoryName = c.NameCategory,
                 Products = c.Products.Select(p => new ProductDTO
                 {
                     IdProduct = p.IdProduct,
-                    NameProduct = p.NameProduct,
+                    ProductName = p.NameProduct,
                     Price = p.Price,
                     DateUp = p.DateUp,
                     Discontinued = p.Discontinued,
@@ -118,6 +106,7 @@ namespace Store.Controllers
         [HttpGet("paginacion/{page?}")]
         public async Task<ActionResult> GetCategoriesPagination(int page = 1)
         {
+            await _actionsService.AddAction("Get paginated categories", "Categories");
             int recordsPerPage = 2;
 
             var totalCategories = await _context.Categories.CountAsync();
@@ -131,11 +120,11 @@ namespace Store.Controllers
             var categoriesDTO = categories.Select(c => new CategoryDTO
             {
                 IdCategory = c.IdCategory,
-                NameCategory = c.NameCategory,
+                CategoryName = c.NameCategory,
                 Products = c.Products.Select(p => new ProductDTO
                 {
                     IdProduct = p.IdProduct,
-                    NameProduct = p.NameProduct,
+                    ProductName = p.NameProduct,
                     Price = p.Price,
                     DateUp = p.DateUp,
                     Discontinued = p.Discontinued,
@@ -148,10 +137,10 @@ namespace Store.Controllers
             return Ok(new { categories = categoriesDTO, totalPages });
         }
 
-
         [HttpGet("pagination/{from}/{until}")]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesFromUntil(int from, int until)
         {
+            await _actionsService.AddAction("Get paginated categories from|until", "Categories");
             if (from < 1)
             {
                 return BadRequest("The minimum must be greater than 0");
@@ -170,11 +159,11 @@ namespace Store.Controllers
             var categoriesDTO = categories.Select(c => new CategoryDTO
             {
                 IdCategory = c.IdCategory,
-                NameCategory = c.NameCategory,
+                CategoryName = c.NameCategory,
                 Products = c.Products.Select(p => new ProductDTO
                 {
                     IdProduct = p.IdProduct,
-                    NameProduct = p.NameProduct,
+                    ProductName = p.NameProduct,
                     Price = p.Price,
                     DateUp = p.DateUp,
                     Discontinued = p.Discontinued,
@@ -190,17 +179,17 @@ namespace Store.Controllers
         {
             await _actionsService.AddAction("Get categories and products", "Categories");
             var category = await (from x in _context.Categories
-                                   select new CategoryProductDTO
-                                   {
-                                       IdCategory = x.IdCategory,
-                                       NameCategory = x.NameCategory,
-                                       TotalProducts = x.Products.Count(),
-                                       Products = x.Products.Select(y => new ProductItemDTO
-                                       {
-                                           IdProduct = y.IdProduct,
-                                           NameProduct = y.NameProduct
-                                       }).ToList(),
-                                   }).FirstOrDefaultAsync(x => x.IdCategory == id);
+                                  select new CategoryProductDTO
+                                  {
+                                      IdCategory = x.IdCategory,
+                                      CategoryName = x.NameCategory,
+                                      TotalProducts = x.Products.Count(),
+                                      Products = x.Products.Select(y => new ProductItemDTO
+                                      {
+                                          IdProduct = y.IdProduct,
+                                          ProductName = y.NameProduct
+                                      }).ToList(),
+                                  }).FirstOrDefaultAsync(x => x.IdCategory == id);
 
             if (category == null)
             {
@@ -213,9 +202,10 @@ namespace Store.Controllers
         [HttpPost]
         public async Task<ActionResult> PostCategory(CategoryInsertDTO category)
         {
+            await _actionsService.AddAction("Add category", "Categories");
             var newCategory = new Category()
             {
-                NameCategory = category.NameCategory
+                NameCategory = category.CategoryName
             };
 
             await _context.AddAsync(newCategory);
@@ -228,6 +218,7 @@ namespace Store.Controllers
         [HttpPut("{idCategory:int}")]
         public async Task<IActionResult> PutCategory(int idCategory, [FromBody] CategoryUpdateDTO category)
         {
+            await _actionsService.AddAction("Update category", "Categories");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -247,7 +238,7 @@ namespace Store.Controllers
                 return NotFound(new { message = "The category was not found" });
             }
 
-            categoryUpdate.NameCategory = category.NameCategory;
+            categoryUpdate.NameCategory = category.CategoryName;
 
             try
             {
@@ -264,6 +255,7 @@ namespace Store.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
+            await _actionsService.AddAction("Delete category", "Categories");
             var thereAreProducts = await _context.Products.AnyAsync(x => x.CategoryId == id);
             if (thereAreProducts)
             {

@@ -33,12 +33,12 @@ namespace Store.Controllers
             var productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
             return Ok(productsDTO);
         }
@@ -59,12 +59,12 @@ namespace Store.Controllers
             var productDTO = new ProductDTO
             {
                 IdProduct = product.IdProduct,
-                NameProduct = product.NameProduct,
+                ProductName = product.NameProduct,
                 Price = product.Price,
                 DateUp = product.DateUp,
                 Discontinued = product.Discontinued,
                 PhotoUrl = product.PhotoUrl,
-                NameCategory = product.Category.NameCategory
+                CategoryName = product.Category.NameCategory
             };
 
             return Ok(productDTO);
@@ -95,12 +95,12 @@ namespace Store.Controllers
             productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
 
             return Ok(productsDTO);
@@ -118,12 +118,12 @@ namespace Store.Controllers
             var productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
 
             return Ok(productsDTO);
@@ -141,12 +141,12 @@ namespace Store.Controllers
             var productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
 
             return Ok(productsDTO);
@@ -155,6 +155,7 @@ namespace Store.Controllers
         [HttpGet("pagination/{page?}")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsPagination(int page = 1)
         {
+            await _actionsService.AddAction("Get Paginated Products", "Products");
             int recordsPerPage = 5;
             var products = await _context.Products
                 .Skip((page - 1) * recordsPerPage)
@@ -165,12 +166,12 @@ namespace Store.Controllers
             var productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
 
             return Ok(productsDTO);
@@ -179,6 +180,7 @@ namespace Store.Controllers
         [HttpGet("pagination/{from}/{until}")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsFromUntil(int from, int until)
         {
+            await _actionsService.AddAction("Get Paginated Products from|until", "Products");
             if (from < 1)
             {
                 return BadRequest("The minimum must be greater than 0");
@@ -197,12 +199,12 @@ namespace Store.Controllers
             var productsDTO = products.Select(p => new ProductDTO
             {
                 IdProduct = p.IdProduct,
-                NameProduct = p.NameProduct,
+                ProductName = p.NameProduct,
                 Price = p.Price,
                 DateUp = p.DateUp,
                 Discontinued = p.Discontinued,
                 PhotoUrl = p.PhotoUrl,
-                NameCategory = p.Category.NameCategory
+                CategoryName = p.Category.NameCategory
             }).ToList();
 
             return Ok(productsDTO);
@@ -211,14 +213,14 @@ namespace Store.Controllers
         [HttpGet("productSale")]
         public async Task<ActionResult<IEnumerable<ProductSaleDTO>>> GetProductsAndPrices()
         {
-            await _actionsService.AddAction("Get producto and prices", "Products");
+            await _actionsService.AddAction("Get products and prices", "Products");
             var products = await _context.Products
                 .Include(x => x.Category)
                 .Select(x => new ProductSaleDTO
                 {
-                    NameProduct = x.NameProduct,
+                    ProductName = x.NameProduct,
                     Price = x.Price,
-                    NameCategory = x.Category.NameCategory
+                    CategoryName = x.Category.NameCategory
                 })
                 .ToListAsync();
 
@@ -260,13 +262,14 @@ namespace Store.Controllers
             already brings the data from the database server to the server's memory. Doing the filters in 
             memory is less efficient than doing them in a database. We build the filters dynamically and 
             until we do the ToListAsync we do not go to the database to get the information. */
+            await _actionsService.AddAction("Get products with a multiple filter", "Products");
             var productsQueryable = _context.Products
                 .Include(p => p.Category)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(filterProducts.NameProduct))
+            if (!string.IsNullOrEmpty(filterProducts.ProductName))
             {
-                productsQueryable = productsQueryable.Where(x => x.NameProduct.Contains(filterProducts.NameProduct));
+                productsQueryable = productsQueryable.Where(x => x.NameProduct.Contains(filterProducts.ProductName));
             }
 
             if (filterProducts.Discontinued)
@@ -283,12 +286,12 @@ namespace Store.Controllers
                 .Select(p => new ProductDTO
                 {
                     IdProduct = p.IdProduct,
-                    NameProduct = p.NameProduct,
+                    ProductName = p.NameProduct,
                     Price = p.Price,
                     DateUp = p.DateUp,
                     Discontinued = p.Discontinued,
                     PhotoUrl = p.PhotoUrl,
-                    NameCategory = p.Category.NameCategory
+                    CategoryName = p.Category.NameCategory
                 })
                 .ToListAsync();
 
@@ -299,9 +302,10 @@ namespace Store.Controllers
         [HttpPost]
         public async Task<ActionResult> PostProduct(ProductInsertDTO product)
         {
+            await _actionsService.AddAction("Add products", "Products");
             var newProduct = new Product()
             {
-                NameProduct = product.NameProduct,
+                NameProduct = product.ProductName,
                 Price = product.Price,
                 DateUp = DateOnly.FromDateTime(DateTime.Now),
                 Discontinued = product.Discontinued,
@@ -334,8 +338,9 @@ namespace Store.Controllers
 
         [Authorize]
         [HttpPut("{idProduct:int}")]
-        public async Task<IActionResult> PutProduct(int idProduct, [FromBody] ProductUpdateDTO product)
+        public async Task<IActionResult> PutProduct(int idProduct, [FromForm] ProductUpdateDTO product)
         {
+            await _actionsService.AddAction("Update product", "Products");
             if (idProduct != product.IdProduct)
             {
                 return BadRequest(new { message = "The product ID does not match the request body" });
@@ -360,12 +365,21 @@ namespace Store.Controllers
                 productUpdate.CategoryId = (int)product.CategoryId;
             }
 
-            productUpdate.NameProduct = product.NameProduct;
+            productUpdate.NameProduct = product.ProductName;
             productUpdate.Price = product.Price;
             productUpdate.DateUp = product.DateUp;
             productUpdate.Discontinued = product.Discontinued;
-            productUpdate.PhotoUrl = product.PhotoUrl;
-            productUpdate.CategoryId = (int)product.CategoryId;
+
+            if (product.Photo != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await product.Photo.CopyToAsync(memoryStream);
+                var content = memoryStream.ToArray();
+                var extension = Path.GetExtension(product.Photo.FileName);
+                var contentType = product.Photo.ContentType;
+                var routeImage = await _fileManagerService.SaveFile(content, extension, "img", contentType);
+                productUpdate.PhotoUrl = routeImage;
+            }
 
             try
             {
@@ -382,6 +396,7 @@ namespace Store.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
+            await _actionsService.AddAction("Delete product", "Products");
             var product = await _context.Products.FirstOrDefaultAsync(x => x.IdProduct == id);
 
             if (product is null)

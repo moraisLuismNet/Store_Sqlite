@@ -4,6 +4,6 @@
     {
         public int IdCategory { get; set; }
 
-        public string NameCategory { get; set; } = null!;
+        public string CategoryName { get; set; } = null!;
     }
 }

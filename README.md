@@ -1,21 +1,25 @@
-## Store
+## Store_Sqlite
 ASP.NET Core Web API Store
 
-![Store](img/Store.png)
+![Store](img/1.png)
+![Store](img/1.png)
+
+
+## Program
+``` 
+var connectionString = builder.Configuration.GetConnectionString("Connection");
+
+builder.Services.AddDbContext<StoreContext>(options =>
+    options.UseSqlite(connectionString);
+);
+``` 
 
 ## appsetting.Development.json
 ``` 
 {
-    "Logging": {
-        "LogLevel": {
-            "Default": "Information",
-            "Microsoft.AspNetCore": "Warning"
-        }
-    },
-    "AllowedHosts": "*",
-    "ConnectionStrings": {
-        "Connection": "Data Source=store.db"
-    }
+  "ConnectionStrings": {
+    "Connection": "Data Source=store.db"
+  }
 }
-
 ``` 
+

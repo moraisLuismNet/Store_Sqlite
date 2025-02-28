@@ -23,8 +23,11 @@ builder.Services.AddControllers(options =>
 var connectionString = builder.Configuration.GetConnectionString("Connection");
 
 builder.Services.AddDbContext<StoreContext>(options =>
+{
+    options.UseSqlite(connectionString);
     // Disable tracking
-    options.UseSqlite(connectionString));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -107,7 +110,7 @@ app.UseCors();
 
 app.UseAuthorization();
 
-app.UseMiddleware<RegisterAndControlMiddleware>();
+//app.UseMiddleware<RegisterAndControlMiddleware>();
 
 app.MapControllers();
 

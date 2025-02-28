@@ -1,13 +1,17 @@
-﻿namespace Store.DTOs
+﻿using Store.Validators;
+
+namespace Store.DTOs
 {
     public class ProductUpdateDTO
     {
         public int IdProduct { get; set; }
-        public string NameProduct { get; set; } = null!;
+        public string ProductName { get; set; } = null!;
         public decimal Price { get; set; }
         public DateOnly? DateUp { get; set; }
         public bool Discontinued { get; set; }
-        public string? PhotoUrl { get; set; }
+        [WeightFileValidation(MaximumWeightInMegaBytes: 4)]
+        [ValidationFileType(groupFileType: GroupFileType.Image)]
+        public IFormFile? Photo { get; set; }
         public int? CategoryId { get; set; }
     }
 }
