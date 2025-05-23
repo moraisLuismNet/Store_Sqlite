@@ -23,3 +23,5 @@ builder.Services.AddDbContext<StoreContext>(options =>
 }
 ``` 
 
+[DeepWiki moraisLuismNet/Store_Sqlite](https://deepwiki.com/moraisLuismNet/Store_Sqlite)
+
