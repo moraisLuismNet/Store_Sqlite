@@ -47,9 +47,7 @@ Store_Sqlite/
 │   ├───GroupFileType.cs  
 │   ├───ValidationFileType.cs  
 │   └───WeightFileValidation.cs  
-├───appsettings.Development.json  
 ├───appsettings.json  
-├───Dockerfile  
 └───Program.cs    
 └───store.db 
 
