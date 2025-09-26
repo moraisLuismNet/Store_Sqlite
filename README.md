@@ -1,6 +1,6 @@
 ## Store_Sqlite
 
-**Store_Sqlite** is an ASP.NET Core web API for a store, managing categories, products, and users. It includes controllers for CRUD operations and features such as pagination, filtering, image file management, and JWT authentication/authorization. It implements services for action logging, file management, password encryption and hashing, and a scheduled task. Entity Framework Core is configured for interaction with a Sqlite database, with DTOs for data transfer and validators for data input. Finally, development and production configurations, a Dockerfile, and a Docker-Compose for container deployment are provided.
+**Store_Sqlite** is an ASP.NET Core 8.0 Web API for a store, managing categories, products, and users. It includes controllers for CRUD operations and features such as pagination, filtering, image file management, and JWT authentication/authorization. It implements services for action logging, file management, password encryption and hashing, and a scheduled task. Entity Framework Core is configured for interaction with a Sqlite database, with DTOs for data transfer and validators for data input. 
 
 ![Store_Sqlite](img/UML.png)
 
